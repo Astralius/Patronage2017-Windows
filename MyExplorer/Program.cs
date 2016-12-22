@@ -17,7 +17,7 @@ namespace MyExplorer
             // Walidacja dostępu: exists = false, gdy ścieżka jest niepoprawna -lub- katalog nie istnieje -lub- użytkownik nie ma prawa odczytu.
             bool exists = Directory.Exists(path);
 
-            Console.WriteLine(exists ? "Katalog istnieje." : "Katalog nie istnieje");  
+            Console.WriteLine(exists ? "Katalog istnieje." : "Katalog nie istnieje.");  
             if(!exists) return;
 
             ConsoleColor startingColor = Console.ForegroundColor;
