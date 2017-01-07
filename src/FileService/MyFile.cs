@@ -7,10 +7,6 @@ namespace Explorer.Services
         public string Name { get; set; }
         public string FullPath { get; set; }
         public DateTime DateModified { get; set; }
-
-        public void Display()
-        {
-            throw new NotImplementedException();
-        }
+        public DateTime DateCreated { get; set; }
     }
 }

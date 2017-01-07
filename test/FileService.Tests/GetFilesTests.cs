@@ -5,11 +5,11 @@ using Xunit;
 
 namespace Explorer.Services.UnitTests
 {
-    public class BasicTests
+    public class GetFilesTests
     {
         private readonly FileService service;
 
-        public BasicTests()
+        public GetFilesTests()
         {
             service = new FileService();
         }
@@ -87,15 +87,15 @@ namespace Explorer.Services.UnitTests
 
                 Directory.CreateDirectory(testDir + "\\SubDir1");
                 Directory.CreateDirectory(testDir + "\\SubDir2");
-                File.Create(testDir + "\\Test1.txt");
-                File.Create(testDir + "\\Test2.txt");
-                File.Create(testDir + "\\SubDir1\\Test3.txt");
-                File.Create(testDir + "\\SubDir2\\Test4.txt");      
+                File.Create(testDir + "\\Test1.txt").Dispose();
+                File.Create(testDir + "\\Test2.txt").Dispose();
+                File.Create(testDir + "\\SubDir1\\Test3.txt").Dispose();
+                File.Create(testDir + "\\SubDir2\\Test4.txt").Dispose();      
             }
 
             #endregion
 
-            #region LInux/OSX mockup
+            #region Linux/OSX mockup
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
@@ -104,10 +104,10 @@ namespace Explorer.Services.UnitTests
 
                 Directory.CreateDirectory(testDir + "/SubDir1");
                 Directory.CreateDirectory(testDir + "/SubDir2");
-                File.Create(testDir + "/Test1.txt");
-                File.Create(testDir + "/Test2.txt");
-                File.Create(testDir + "/SubDir1/Test3.txt");
-                File.Create(testDir + "/SubDir2/Test4.txt");
+                File.Create(testDir + "/Test1.txt").Dispose();
+                File.Create(testDir + "/Test2.txt").Dispose();
+                File.Create(testDir + "/SubDir1/Test3.txt").Dispose();
+                File.Create(testDir + "/SubDir2/Test4.txt").Dispose();
             }
 
             #endregion
@@ -121,6 +121,8 @@ namespace Explorer.Services.UnitTests
             Assert.True(result.Count == 6, "GetFiles() should've found 6 items in the test path, but it has not!");
             Assert.True(result.FindAll(p => p.GetType() == typeof(FileInfo)).Count == 4, "GetFiles() should've found 4 files in the test path, but it has not!");
             Assert.True(result.FindAll(p => p.GetType() == typeof(DirectoryInfo)).Count == 2, "GetFiles() should've found 2 directories in the test path, but it has not!");
+
+            Directory.Delete(testDir, true);
         }
 
         #endregion

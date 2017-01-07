@@ -7,7 +7,6 @@ namespace Explorer.Services
         string Name { get; set; }
         string FullPath { get; set; }
         DateTime DateModified { get; set; }
-
-        void Display();
+        DateTime DateCreated { get; set; }
     }
 }

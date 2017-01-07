@@ -50,5 +50,26 @@ namespace Explorer.Services
 
             return items;
         }
+
+        /// <summary>
+        /// Returns information about the file under the specified path.
+        /// </summary>
+        /// <param name="path">Location (path) of the file.</param>
+        /// <returns>A MyFile object containing metadata of the file or null if something went wrong.</returns>
+        public MyFile GetFileInfo(string path)
+        {
+            // Walidacja dostępu: exists = false, gdy ścieżka jest niepoprawna -lub- katalog nie istnieje -lub- użytkownik nie ma prawa odczytu.
+            if (!File.Exists(path)) return null;
+
+            FileInfo info = new FileInfo(path);
+            MyFile file = new MyFile
+            {
+                Name = info.Name,
+                FullPath = info.FullName,
+                DateCreated = info.CreationTime,
+                DateModified = info.LastWriteTime
+            };
+            return file;
+        }
     }
 }
