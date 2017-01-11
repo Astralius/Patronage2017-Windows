@@ -7,26 +7,19 @@ namespace Explorer.Services.UnitTests
 {
     public class GetFilesTests
     {
-        private readonly FileService service;
-
-        public GetFilesTests()
-        {
-            service = new FileService();
-        }
-
         #region Boundary Conditions
 
         [Fact]
         public void ReturnNullWhenPathIsNull()
         {
-            var result = service.GetFiles(null);
+            var result = FileService.GetFiles(null);
             Assert.Null(result);
         }
 
         [Fact]
         public void ReturnNullWhenPathIsBlank()
         {
-            var result = service.GetFiles("");
+            var result = FileService.GetFiles("");
             Assert.Null(result);
         }
 
@@ -37,16 +30,16 @@ namespace Explorer.Services.UnitTests
         [Fact]
         public void ReturnNullWhenPathDoesNotExist()
         {
-            var result = service.GetFiles("Foo:\\Bar");
+            var result = FileService.GetFiles("Foo:\\Bar");
             Assert.True(result == null, "Foo:\\Bar does not exist, so GetFiles should return null!");
         }
 
         [Fact]
         public void ReturnNullWhenPathIsInvalid()
         {
-            List<FileSystemInfo> result;
+            List<FileInfo> result;
 
-            result = service.GetFiles("~~szłem łąką, kwiaty pachły~~");
+            result = FileService.GetFiles("~~szłem łąką, kwiaty pachły~~");
             Assert.True(result == null, "~~szłem łąką, kwiaty pachły~~ is definitely not a valid path, so GetFiles should return null!");
         }
 
@@ -55,19 +48,19 @@ namespace Explorer.Services.UnitTests
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var result = service.GetFiles("C:\\Program Files\\Common Files");
+                var result = FileService.GetFiles("C:\\Program Files\\Common Files");
                 Assert.True(result != null, "C:\\Program Files\\Common Files should be a valid path under Windows OS!");
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                var result = service.GetFiles("/etc");
+                var result = FileService.GetFiles("/etc");
                 Assert.True(result != null, "/etc should be a valid path under Linux OS!");
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                var result = service.GetFiles("/etc");
+                var result = FileService.GetFiles("/etc");
                 Assert.True(result != null, "/etc should be a valid path under Mac OSX!");
             }
         }
@@ -115,12 +108,10 @@ namespace Explorer.Services.UnitTests
             if (testDir == null) throw new System.Exception("Unsupported Operating System!");
 
             // Grab the result
-            var result = service.GetFiles(currentDirectory + "\\TestDir");
+            var result = FileService.GetFiles(currentDirectory + "\\TestDir");
 
             // Test the result
-            Assert.True(result.Count == 6, "GetFiles() should've found 6 items in the test path, but it has not!");
-            Assert.True(result.FindAll(p => p.GetType() == typeof(FileInfo)).Count == 4, "GetFiles() should've found 4 files in the test path, but it has not!");
-            Assert.True(result.FindAll(p => p.GetType() == typeof(DirectoryInfo)).Count == 2, "GetFiles() should've found 2 directories in the test path, but it has not!");
+            Assert.True(result.Count == 4, "GetFiles() should've found 4 files in the test path, but it has not!");        
 
             Directory.Delete(testDir, true);
         }

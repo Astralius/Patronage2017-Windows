@@ -8,26 +8,19 @@ namespace Explorer.Services.UnitTests
 {
     public class GetFileInfoTests
     {
-        private readonly FileService service;
-
-        public GetFileInfoTests()
-        {
-            service = new FileService();
-        }
-
         #region Boundary Conditions
 
         [Fact]
         public void ReturnNullWhenPathIsNull()
         {
-            var result = service.GetFileInfo(null);
+            var result = FileService.GetFileInfo(null);
             Assert.Null(result);
         }
 
         [Fact]
         public void ReturnNullWhenPathIsBlank()
         {
-            var result = service.GetFileInfo("");
+            var result = FileService.GetFileInfo("");
             Assert.Null(result);
         }
 
@@ -38,16 +31,16 @@ namespace Explorer.Services.UnitTests
         [Fact]
         public void ReturnNullWhenPathDoesNotExist()
         {
-            var result = service.GetFiles("Foo:\\Bar.txt");
+            var result = FileService.GetFiles("Foo:\\Bar.txt");
             Assert.True(result == null, "Foo:\\Bar.txt does not exist, so GetFileInfo should return null!");
         }
 
         [Fact]
         public void ReturnNullWhenPathIsInvalid()
         {
-            List<FileSystemInfo> result;
+            List<FileInfo> result;
 
-            result = service.GetFiles("!@#$%^&*()");
+            result = FileService.GetFiles("!@#$%^&*()");
             Assert.True(result == null, "!@#$%^&*() is not a valid file path, so GetFileInfo should return null!");
         }
 
@@ -76,7 +69,7 @@ namespace Explorer.Services.UnitTests
             info.LastWriteTime = now;
 
             // Vertify data received through the tested method
-            var modelInfo = service.GetFileInfo(testFilePath);
+            var modelInfo = FileService.GetFileInfo(testFilePath);
 
             Assert.True(modelInfo.Name == info.Name, 
                 "The obtained file name (" + modelInfo.Name + ")\n" +
