@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-
+using Explorer.Services;
 
 namespace MyExplorer
 {
@@ -11,121 +10,70 @@ namespace MyExplorer
     {
         public static void Main(string[] args)
         {
-            if (args.Length < 1) return;
+            ConsoleColor startingColor = Console.ForegroundColor;
+
+            if (args.Length < 1  ) return;
             string path = args.First();
 
-            // Walidacja dostępu: exists = false, gdy ścieżka jest niepoprawna -lub- katalog nie istnieje -lub- użytkownik nie ma prawa odczytu.
-            bool exists = Directory.Exists(path);
+            // How deep in the file system is the chosen path
+            int rootDepth = path.Split(Path.DirectorySeparatorChar).Length;
+            // How wide is the current console window
+            int windowWidth = Console.WindowWidth;
 
-            Console.WriteLine(exists ? "Katalog istnieje." : "Katalog nie istnieje.");  
-            if(!exists) return;
-
-            ConsoleColor startingColor = Console.ForegroundColor;
+            // Decorations            
             DisplayHeader(ConsoleColor.Green);
 
-            // Domyślnym zachowaniem jest wyświetlenie samych plików. Zgodnie ze specyfikacją (Krok 3): 
-            // "- dokonała enumeracji wszystkich plików w folderze i wypisała ich nazwy na konsoli wraz ze ścieżką"
-            EnumerateContents(path, args.Contains("-directories"), args.Contains("-subfolders"));      
-            
+            // Core: Get all files under the chosen path
+            var files = FileService.GetFiles(path);
+
+            // Core: Get details of each file and display them
+            foreach (var file in files)
+            {
+                MyFile info = FileService.GetFileInfo(file.FullName);
+                DisplayFile(info, rootDepth, windowWidth);
+            }
+
+            // Decorations
             DisplayHorizontalLine(ConsoleColor.Green, '=');
             Console.ForegroundColor = startingColor;
         }
 
         /// <summary>
-        /// Lists the contents of the directory from a given, valid path.
+        /// Displays file information to the console.
         /// </summary>
-        /// <param name="path">Location (path) of the directory to enumerate.</param>
-        /// <param name="showDirectories">Should the listing include directories (folders)?</param>
-        /// <param name="includeSubfolders">Should the listing also include subdirectories and their contents?</param>
-        /// <param name="level">Level in directory tree (affects indentation).</param>
-        public static void EnumerateContents(string path, bool showDirectories = false, bool includeSubfolders = false, int level = 0)
+        /// <param name="info">Reference to file information.</param>
+        private static void DisplayFile(MyFile file, int rootDepth, int windowWidth)
         {
-            IEnumerable<string> entries = Directory.EnumerateFileSystemEntries(path, "*", SearchOption.TopDirectoryOnly);
-            
-            foreach (string entry in entries)
-            {
-                bool isDirectory = (File.GetAttributes(entry) & FileAttributes.Directory) == FileAttributes.Directory;
-                FileSystemInfo info;
-               
-                #region Files
-                if (!isDirectory)
-                {
-                    info = new FileInfo(entry);
-                    DisplayItem(info, level);
-                }
-                #endregion
-                #region Directories
-                if (isDirectory)
-                {
-                    info = new DirectoryInfo(entry);
+            string itemLine = file.FullPath;
+            int relativeDepth = file.Depth - rootDepth - 1;
 
-                    if (showDirectories)
-                    {
-                        DisplayItem(info, level);
-                    }
+            Console.ForegroundColor = ConsoleColor.White;
 
-                    if (includeSubfolders)
-                    {
-                        // rekurencyjne wywołanie aby ustawić wyniki w odpowiedniej kolejności
-                        EnumerateContents(info.FullName, showDirectories, true, level + 1);
-                    }
-                }
-                #endregion
-            }
-        }
-
-        /// <summary>
-        /// Displays item line base on its type (file/folder) and level in hierarchy
-        /// </summary>
-        /// <param name="info">Item information reference.</param>
-        /// <param name="indent">Line indentation from the left border of the console.</param>
-        private static void DisplayItem(FileSystemInfo info, int indent)
-        {
-            string itemLine = info.FullName;
-            int width = Console.WindowWidth;
-
-            if (!(info is FileInfo) && !(info is DirectoryInfo))
-            {
-                // throw new ArgumentException("Unsupported file system item type at item: ", info.Name);
-                Console.ForegroundColor = ConsoleColor.Red;
-                itemLine = "Unsupported item: " + info.Name;
-                itemLine = itemLine.PadLeft(indent);
-                itemLine = itemLine.Truncate(width);
-                Console.WriteLine(itemLine);
-                return;
-            }
-            
-            if (info is FileInfo)
-            {
-                Console.ForegroundColor = ConsoleColor.Gray;              
-            }
-
-            if (info is DirectoryInfo)
-            {
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-
-            if (indent > 0)
+            if (relativeDepth > 0)
             {
                 string[] parts;
 
-                // Unix
-                parts = itemLine.Split('/');
-                if (parts.Length > 1) itemLine = ' ' + parts[parts.Length - 2] + '/' + parts.Last();
+                // Cross-platform split
+                parts = itemLine.Split(Path.DirectorySeparatorChar);
 
-                // Windows
-                parts = itemLine.Split('\\');
-                if (parts.Length > 1) itemLine = ' ' + parts[parts.Length - 2] + '\\' + parts.Last();
+                // Formatting for items in subfolders
+                if (parts.Length > 1)
+                {
+                    itemLine = 
+                        ' ' + 
+                        parts[parts.Length - 2] + Path.DirectorySeparatorChar + 
+                        parts.Last();
+                }
             }
 
-            // Dodatkowe wcięcie dla rzeczy w podfolderach
-            itemLine = itemLine.PadLeft(itemLine.Length + indent, '-');
+            // Extra indentation for files/directories in subfolders
+            itemLine = itemLine.PadLeft(itemLine.Length + relativeDepth, '-');
 
-            // Pobieram datę i czas ostatniej modyfikacji pliku
-            string dateModified = info.LastWriteTime.ToString(CultureInfo.CurrentCulture);
+            // Getting the date and time of the last modification of the file/directory
+            string dateModified = file.DateModified.ToString(CultureInfo.CurrentCulture);
 
-            // Skracam zbyt długie ścieżki aby zmiecić dateModified
-            itemLine = itemLine.Truncate(width - dateModified.Length);
+            // Shortening of too long paths to fit the dateModified string
+            itemLine = itemLine.Truncate(windowWidth - dateModified.Length);
 
             Console.WriteLine(itemLine + dateModified);
         }
