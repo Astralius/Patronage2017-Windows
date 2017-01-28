@@ -1,3 +1,4 @@
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
 namespace MyExplorerMVC
@@ -8,6 +9,7 @@ namespace MyExplorerMVC
         {
             var host = new WebHostBuilder()
                 .UseIISIntegration()
+                .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseKestrel()
                 .UseStartup<Startup>()
                 .Build();

@@ -1,0 +1,35 @@
+﻿@using System.Globalization
+@model IEnumerable<System.IO.FileInfo>
+
+<!DOCTYPE html>
+<html lang=@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName>
+
+<head>
+    <title>Pliki w katalogu wwwroot</title>
+    <link href="@Url.Content("~/css/MyStyle.css")" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<section id="main">
+    <header>
+        <h1>Pliki w katalogu <a href="/">wwwroot</a></h1>
+    </header>
+    <table id="index" summary="Lista plikow w wybranym katalogu">
+        <thead>
+        <tr>
+            <th>Nazwa</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var file in Model)
+        {
+            <tr>
+                <td class="name"><a href="Files/Details/@file.Name">@file.Name</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
+</body>
+
+</html>
