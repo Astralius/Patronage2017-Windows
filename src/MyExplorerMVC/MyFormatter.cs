@@ -92,14 +92,6 @@ namespace MyExplorerMVC
             builder.AppendFormat(@"
                     <header><h1>{0} <a href=""/"">/</a>", "Pliki w katalogu ");
 
-            //string cumulativePath = "/";
-            //foreach (var segment in requestPath.Value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries))
-            //{
-            //    cumulativePath = cumulativePath + segment + "/";
-            //    builder.AppendFormat(@"<a href=""{0}"">{1}/</a>",
-            //        HtmlEncode(cumulativePath), HtmlEncode(segment));
-            //}
-
             builder.AppendFormat(CultureInfo.CurrentUICulture, @"
                     </h1></header>
                     <table id=""index"" summary=""{0}"">
