@@ -11,7 +11,7 @@ namespace Explorer.Services
         /// </summary>
         /// <param name="path">Location (path) of the directory to enumerate.</param>
         /// <returns>A list with files' information or null if something went wrong.</returns>
-        public static List<FileInfo> GetFiles(string path)
+        public static List<FileInfo> GetFiles(string path, bool topDirectoryOnly = false)
         {
             // Validation: exists = false, when path is invalid -or- directory does not exist -or- the user does not have read rights for the directory.
             if (!Directory.Exists(path)) return null;
@@ -35,7 +35,7 @@ namespace Explorer.Services
 
                 #region Directories
 
-                if (isDirectory)
+                if (isDirectory && !topDirectoryOnly)
                 {
                     // recursive call to sort the resulting files in the right order (depth first)
                     items.AddRange(GetFiles(entry));
