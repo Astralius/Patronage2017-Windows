@@ -27,7 +27,7 @@ namespace MyExplorerMVC
             }
 
             app.Run(context => formatter.ListFilesAsync(
-                    context, FileService.GetFiles(env.ContentRootPath, true)));
+                    context, FileService.GetFiles(env.WebRootPath, true)));
         }
     }
 }
